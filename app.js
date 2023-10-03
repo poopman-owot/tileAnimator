@@ -1,5 +1,5 @@
 w.on("cursorMove", handleCursorMove);
-
+elm.chat_close.click();
 class CanvasLayer {
   constructor(id, width, height) {
     const layers = document.querySelectorAll(".screen_canvas").length;
@@ -458,16 +458,27 @@ const uiHTML = `
         <li>FPS: <input title = "Set animation FPS playback speed" type="range" min="1" max="6" value="3">
           <p>3</p>
         </li>
+				<li> <a href="https://ik.imagekit.io/poopman/TileAnimator/tutorial.mp4?updatedAt=1696346283755" target = "_blank"><button title = "Watch the tutorial video" type="button">Tutorial Video</button></a></li>
         <li> <button title = "Export animation frames as a JSON file" type="button" onclick = exportFrames();>Export JSON</button></li>
 
         <li> <button title = "Imports a .js JSON file and adds data to frames" onclick = readJsonFromFile();>Import JSON</button></li>
+
 <li> <button type="button" title = "Creates and copies a standalone animation script to the users clipboard" onclick = createStandalone();>Copy Animation</button></li>
+
 <li>
     <div class="checkbox-container">
         <label  title = "Determines if animation preview should play in the current tile" class="checkbox-label">
             <input type="checkbox"id="previewCheckbox">
             <span class="checkbox-custom"></span>
             Render preview <br>on tile
+        </label>
+    </div></li>
+<li>
+    <div class="checkbox-container">
+        <label  title = "Creates a frame for every input to a tile" class="checkbox-label">
+            <input type="checkbox"id="record-cb">
+            <span class="checkbox-custom"></span>
+            Record tile input
         </label>
     </div></li>
       </ul>
@@ -826,6 +837,12 @@ display: block;
 #settings-container .checkbox-label input[type="checkbox"] {
   display: none;
 }
+#settings-list li a {
+    width: 100%;
+}
+#settings-list li a button{
+    background-color: #a900ff;
+}
 `
 const animation_container = document.createElement("div");
 animation_container.id = `animation-container`;
@@ -1130,7 +1147,8 @@ function readJsonFromFile() {
   // Trigger the file input element's click event
   inputElement.click();
 }
-owot.addEventListener("dblclick", function(e) {
+
+function addCurrentTile(e) {
   const frame_container = document.querySelector("#animation-frames");
   const lastChild = frame_container.lastChild;
   const fc_width = frame_container.scrollWidth;
@@ -1154,8 +1172,15 @@ owot.addEventListener("dblclick", function(e) {
       createFrameObject();
     }
   }
-})
+}
 
+owot.addEventListener("dblclick", addCurrentTile)
+w.on("write",function(e){
+    if(document.querySelector("#record-cb").checked){
+			addCurrentTile();
+}
+
+})
 function copyToClipboard(text) {
   const textArea = document.createElement("textarea");
   textArea.value = text;
