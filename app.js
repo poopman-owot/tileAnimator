@@ -1,3 +1,4 @@
+(function(){
 w.on("cursorMove", handleCursorMove);
 elm.chat_close.click();
 class CanvasLayer {
@@ -1315,3 +1316,4 @@ currentFrame = 0;
   copyToClipboard(SAF)
   alert("Standalone animation has been copied to your clipboard.")
 }
+})()
