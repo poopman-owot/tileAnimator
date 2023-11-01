@@ -24,79 +24,7 @@ class CanvasLayer {
   }
 
   renderPreviewChar(textRender, fontX, fontY, char, color, link, writability, canvasWrite) {
-    var textYOffset = cellH - (5 * zoom);
-    var deco = getCharTextDecorations(char);
-    char = clearCharTextDecorations(char);
-    char = resolveCharEmojiCombinations(char);
-
-    var cCode = char.codePointAt(0);
-
-    // initialize link color to default text color in case there's no link to color
-    var linkColor = styles.text;
-    if (textColorOverride) {
-      if (writability == 0 && textColorOverride & 4) linkColor = styles.public_text;
-      if (writability == 1 && textColorOverride & 2) linkColor = styles.member_text;
-      if (writability == 2 && textColorOverride & 1) linkColor = styles.owner_text;
-    }
-
-    var isLink = false;
-    if (link) {
-      isLink = true;
-      if (link.linkType == "url") {
-        linkColor = defaultURLLinkColor;
-      } else if (link.linkType == "coord") {
-        linkColor = defaultCoordLinkColor;
-      }
-    }
-
-    // if text has no color, use default text color. otherwise, colorize it
-    if (color == 0 || !colorsEnabled || (isLink && !colorizeLinks)) {
-      textRender.fillStyle = linkColor;
-    } else {
-      textRender.fillStyle = `rgb(${color >> 16 & 255},${color >> 8 & 255},${color & 255})`;
-    }
-
-    // x padding of text if the char width is > 10
-    var XPadding = cellWidthPad * zoom;
-
-    // underline link
-    if (isLink) {
-      textRender.fillRect(fontX, fontY + textYOffset + zoom, cellW, zoom);
-    }
-
-    if (deco) {
-      if (deco.under) {
-        textRender.fillRect(fontX, fontY + textYOffset + zoom, cellW, zoom);
-      }
-      if (deco.strike) {
-        textRender.fillRect(fontX, fontY + Math.floor((16 * zoom) / 2), cellW, zoom);
-      }
-    }
-
-    // don't render whitespaces
-    if (char == "\u0020" || char == "\u00A0") return;
-
-    var isBold = deco && deco.bold;
-    var isItalic = deco && deco.italic;
-    var checkIdx = 1;
-    if (char.codePointAt(0) > 65535) checkIdx = 2;
-    var isSpecial = char.codePointAt(checkIdx) != void 0;
-    isSpecial = isSpecial || (cCode >= 0x2500 && cCode <= 0x257F);
-
-    var tempFont = null;
-    var prevFont = null;
-    if (isSpecial || deco) {
-      prevFont = textRender.font;
-      tempFont = textRender.font;
-      if (isSpecial) tempFont = specialCharFont;
-      if (isBold) tempFont = "bold " + tempFont;
-      if (isItalic) tempFont = "italic " + tempFont;
-      textRender.font = tempFont;
-    }
-    textRender.fillText(char, Math.round(fontX + XPadding), Math.round(fontY + textYOffset));
-    if (prevFont) {
-      textRender.font = prevFont;
-    }
+    renderChar(textRender, fontX, fontY, char, color, cellW, cellH, writability, null, null, 0, 0, 0, 0, false);
   }
 
   renderString(str, canvasWrite) {
@@ -189,12 +117,7 @@ class CanvasLayer {
         }
       }
       var code = char.codePointAt();
-      if (isValidSpecialSymbol(code)) {
-        this.ctx.fillStyle = `rgb(${color >> 16 & 255},${color >> 8 & 255},${color & 255})`;
-        drawBlockChar(code, this.ctx, posX, posY, tileW, tileH);
-      } else {
-        this.renderPreviewChar(this.ctx, posX * cellW, posY * cellH, char, color, link, prot, canvasWrite);
-      }
+      this.renderPreviewChar(this.ctx, posX * cellW, posY * cellH, char, color, link, prot, canvasWrite);
     }
   }
   convertData(str, colors, bgcolors, links, protections, decorations, coords) {
